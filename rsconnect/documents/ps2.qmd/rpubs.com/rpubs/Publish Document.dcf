@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/1361161/88c8339d55ec4c5e8fd9368eef7fba9b
+bundleId: https://api.rpubs.com/api/v1/document/1361161/88c8339d55ec4c5e8fd9368eef7fba9b
+url: http://rpubs.com/kmwhitman/1361161
+version: 1
