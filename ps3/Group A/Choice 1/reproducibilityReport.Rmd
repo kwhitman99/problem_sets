@@ -1,5 +1,6 @@
 ---
 title: "Reproducibility Report: Group A Choice 1"
+author: "Kathrine Whitman"
 output:
   html_document:
     toc: true
@@ -7,12 +8,14 @@ output:
 ---
 
 -------
+https://rpubs.com/kmwhitman/1366612
+-------
 
 For this exercise, please try to reproduce the results from Study 1 of the associated paper (Joel, Teper, & MacDonald, 2014). The PDF of the paper is included in the same folder as this Rmd file. 
 
 #### Methods summary: 
 
-In study 1, 150 introductory psychology students were randomly assigned to a "real" or a "hypothetical" condition. In the real condition, participants believed that they would have a real opportuniy to connect with potential romantic partners. In the hypothetical condition, participants simply imagined that they are on a date. All participants were required to select their favorite profile and answer whether they were willing to exchange contact information. 
+In study 1, 150 introductory psychology students were randomly assigned to a "real" or a "hypothetical" condition. In the real condition, participants believed that they would have a real opportunity to connect with potential romantic partners. In the hypothetical condition, participants simply imagined that they are on a date. All participants were required to select their favorite profile and answer whether they were willing to exchange contact information. 
 
 ------
 
@@ -37,8 +40,8 @@ library(haven) # import and export 'SPSS', 'Stata' and 'SAS' Files
 library(readxl) # import excel files
 
 # #optional packages:
-# library(broom)
-# library(labelled)# converts SPSS's labelled to R's factor 
+library(broom)
+library(labelled) #converts SPSS's labelled to R's factor 
 ```
 
 # Step 2: Load data
@@ -51,7 +54,15 @@ d <- read_sav('data/Empathy Gap Study 1 data.sav')
 # Step 3: Tidy data
 
 ```{r}
+#convert table to long form 
+#grab question "exchange contact information"; check to include varaible types (attractive and unattractive potential date)
 
+d_long <- d %>% 
+  pivot_longer(cols = -c(ID, condition), 
+               names_to = "question", 
+               values_to = "response") %>% 
+  filter(question == "exchangeinfo") %>% 
+  select(condition, response)
 ```
 
 # Step 4: Run analysis
@@ -62,7 +73,22 @@ d <- read_sav('data/Empathy Gap Study 1 data.sav')
 
 ```{r}
 # reproduce the above results here
+#hypothetical coded as condition 0,real coded as 1
+#exchange contact yes coded as 1, do not exchange coded as 2  
 
+counts <- d_long %>%
+  group_by(condition, response) %>%
+  summarise(count = n(), .groups = "drop")
+#Sanity check to see counts before moving to percentages 
+
+d_descriptives <- d_long %>% 
+  count(condition, response, name = "count") %>%
+  group_by(condition) %>%
+  mutate(n_per_condition = sum(count)) %>%
+  mutate(freq = (count / n_per_condition) * 100) %>% 
+  ungroup()
+
+print(d_descriptives)
 ```
 
 ## Inferential statistics
@@ -74,20 +100,25 @@ Hint: if you are using the function chisq.test(), make sure to set the continuit
 ```{r}
 # reproduce the above results here
 
+#variables for comparison (real vs hypothetical, reject and accept)
+
+condition <- d_long$condition
+response <- d_long$response
+
+chi_results <- chisq.test(condition, response, correct = FALSE)
+print(chi_results)
 ```
 
 # Step 5: Reflection
 
 Were you able to reproduce the results you attempted to reproduce? If not, what part(s) were you unable to reproduce?
 
-> ANSWER HERE
+> Yes! A successful reproduction. 
 
 How difficult was it to reproduce your results? 
 
-> ANSWER HERE
+> Not difficult, because there was not a lot of steps to data cleaning (missing values, transformations, etc.)
 
 What aspects made it difficult? What aspects made it easy?
 
-> ANSWER HERE
-
-
+> The column names or data codebook would have made it more easy to run the analysis on my own, instead of using counts to figure it out backward. I was also confused on about column labeling for information exchange and where attractiveness factored in. 
